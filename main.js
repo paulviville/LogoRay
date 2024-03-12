@@ -99,7 +99,7 @@ vec3 translate(vec3 p, vec3 t) {
     return p - t;
 }
 
-const float alpha = pi / 12.;
+const float alpha = pi / 16.;
 const float beta = pi / 2. - alpha;
 const float gamma = 2. * alpha;
 
@@ -110,17 +110,17 @@ const float c = b * b / a;
 const float coneHeight = c;
 const vec2 coneAngles = vec2(sin(alpha), cos(alpha));
 
-const vec4 s0 = vec4(0., 0., radius * 0.4, radius);
-const vec4 s1 = vec4(0., 0., -radius * 0.4, radius);
+const vec4 s0 = vec4(0., 0., radius * 0.6, radius);
+const vec4 s1 = vec4(0., 0., -radius * 0.6, radius);
 
 
 float spike(vec3 p) {
     float dist = 1./0.;
 
-    vec3 up = vec3(0., 5. * radius, 0.);
+    vec3 up = vec3(0., 4. * radius, 0.);
     vec3 p_ = translate(p, up) ;
-    float distCone0 = sdCone(p_ + vec3(0., -coneHeight - a, -radius * 0.4), coneAngles, coneHeight);
-    float distCone1 = sdCone(p_ + vec3(0., -coneHeight - a, radius * 0.4), coneAngles, coneHeight);
+    float distCone0 = sdCone(p_ + vec3(0., -coneHeight - a, -radius * 0.6), coneAngles, coneHeight);
+    float distCone1 = sdCone(p_ + vec3(0., -coneHeight - a, radius * 0.6), coneAngles, coneHeight);
 
     float distSphere0 = sdSphere(p_, s0);
     float distSphere1 = sdSphere(p_, s1);
@@ -149,18 +149,18 @@ float spoke(vec3 p) {
     return dist;
 }
 
-const int nbSpokes = 7;
+const int nbSpokes = 6;
 float Distance(vec3 p) {
     float dist = 1./0.;
 
-    // vec4 s1 = vec4(0., -5., 10., 5.);
-    // vec4 s0 = vec4(0., cos(time*0.2), 6., 1.);
-    vec4 s2 = vec4(3.*sin(time*0.5), 0., 6., 1.);
-    // dist = min(dist, sdSphere(p, s1));
-    vec2 p2 = rotate(p.xy, - time / 10.);
-    p = vec3(p2.x, p2.y, p.z);
-    p2 = rotate(p.yz, -time / 10. );
+    vec2 p2 = rotate(p.yz, 4./10.);
     p = vec3(p.x, p2.x, p2.y);
+
+    p2 = rotate(p.xy, - time / 4.);
+    p = vec3(p2.x, p2.y, p.z);
+
+    // p2 = rotate(p.yz, - time / 8.);
+    // p = vec3(p.x, p2.x, p2.y);
 
     vec3 torusCenter0 = vec3(0., 0., 0.15);
     vec3 torusCenter1 = vec3(0., 0., -0.15);
@@ -180,15 +180,8 @@ float Distance(vec3 p) {
     float scale = .25;
     float scaleFactor = 1.2;
 
-    // float spoke0 = spoke(pr / scale) * scale;
-    // scale *= scaleFactor;
-    // float spoke1 = spoke(pr / scale) * scale;
-
-    // dist = min(dist, spoke0);
-    // dist = min(dist, spoke1);
-
     for(int i = 0; i < nbSpokes; ++i) {
-        vec3 pr = vec3(rotate(p.xy, float(i - 1) * pi / 5.5), p.z);
+        vec3 pr = vec3(rotate(p.xy, float(i - 2) * pi / 5.5), p.z);
         float s = scale * pow(scaleFactor, float(i));
         float d = spoke(pr / s) * s;
 
@@ -207,9 +200,9 @@ vec3 Gradient(vec3 p) {
     return normalize(n);
 }
 
-#define STEPS 100
-#define DIST 100.
-#define HIT .00001
+#define STEPS 200
+#define DIST 50.
+#define HIT .0001
 
 
 
@@ -259,8 +252,8 @@ void main(){
     color = normalize(Gradient(p)) - (l*0.1);
     color = vec3(max(l, 0.1));
     
-    if(d > DIST)
-        color = vec3(0.05);
+    if(d >= DIST)
+        color = vec3(0.08);
 
 
     fragColor = vec4(color, 1.0);
